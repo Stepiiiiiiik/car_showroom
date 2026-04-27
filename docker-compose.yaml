@@ -1,0 +1,81 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cars_db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  liquibase:
+    build:
+      context: .
+      dockerfile: Dockerfile.liquibase
+    container_name: cars_liquibase
+    depends_on:
+      db:
+        condition: service_healthy
+    working_dir: /liquibase
+    volumes:
+      - ./migrations:/liquibase/changelog:ro
+    command:
+      - --classpath=/liquibase/lib/postgresql.jar
+      - --search-path=/liquibase/changelog
+      - --url=jdbc:postgresql://db:5432/${POSTGRES_DB}
+      - --username=${POSTGRES_USER}
+      - --password=${POSTGRES_PASSWORD}
+      - --changelog-file=db.changelog-master.yaml
+      - update
+    restart: no
+
+  app:
+    build: .
+    container_name: cars_app
+    ports:
+      - "${SERVER_PORT:-8080}:${SERVER_PORT}"
+    env_file:
+      - .env
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    container_name: keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8081
+      KC_HOSTNAME_STRICT: false
+      KC_HTTP_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "${KEYCLOAK_PORT:-8081}:8080"
+    volumes:
+      - ./keycloak-export:/opt/keycloak/data/import
+
+
+volumes:
+  postgres_data:

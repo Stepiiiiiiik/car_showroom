@@ -1,0 +1,146 @@
+table users {
+  id uuid [primary key]
+  login varchar(255) [not null, unique]
+  password_hash varchar(64) [not null]
+  birth_date date [not null]
+  email varchar(255) [not null, check: `email ~ '^[a-zA-Z0-9+]+@[a-zA-Z]+\.[a-zA-Z]{2,}$'`, unique]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  removed bool [not null, default: false]
+}
+
+table roles {
+  id uuid [primary key]
+  name varchar(255) [not null, unique]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  removed bool [not null, default: false]
+}
+
+table users_roles {
+  user_id uuid [not null]
+  role_id uuid [not null]
+
+  indexes {
+    (user_id, role_id) [pk]
+  }
+}
+
+table cars {
+  id uuid [primary key]
+  brand varchar(20) [not null]
+  model varchar(100) [not null]
+  price decimal(7, 3) [not null]
+  body_type smallint [not null]
+  engine_type smallint [not null]
+  power integer [not null]
+  engine_volume decimal(2, 1) [not null]
+  transmission_type smallint [not null]
+  driveshaft_type smallint [not null]
+  color varchar(20) [not null]
+  test_drive_allowed bool [not null, default: false]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  removed bool [not null, default: false]
+}
+
+table spare_parts {
+  id uuid [primary key]
+  price decimal(7, 3) [not null]
+  type smallint  [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  removed bool [not null, default: false]
+}
+
+table car_default_spare_parts {
+  car_id uuid  [not null]
+  spare_part_id uuid  [not null]
+
+  indexes {
+    (car_id, spare_part_id) [pk]
+  }
+}
+
+table common_orders {
+  id uuid [primary key]
+  car_id uuid [not null]
+  client_id uuid [not null]
+  manager_id uuid [not null]
+  price decimal(7, 3) [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  state smallint [not null]
+  removed bool [not null, default: false]
+}
+
+table custom_orders {
+  id uuid [primary key]
+  car_id uuid [not null]
+  client_id uuid [not null]
+  manager_id uuid [not null]
+  price decimal(7, 3) [not null]
+  state smallint [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  removed bool [not null, default: false]
+}
+
+table custom_order_parts {
+  order_id uuid [not null]
+  spare_part_id uuid [not null]
+  indexes {
+    (order_id, spare_part_id) [pk]
+  }
+}
+
+table test_drives {
+  id uuid [primary key]
+  car_id uuid [not null]
+  client_id uuid [not null]
+  start timestamptz [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  removed bool [not null, default: false]
+}
+
+table cars_allowed_spare_parts {
+  car_id uuid [not null]
+  spare_part_id uuid [not null]
+
+  indexes {
+    (car_id, spare_part_id) [pk]
+  }
+}
+
+Ref: "users"."id" < "users_roles"."user_id"
+
+Ref: "roles"."id" < "users_roles"."role_id"
+
+Ref: "cars"."id" < "car_default_spare_parts"."car_id"
+
+Ref: "spare_parts"."id" < "car_default_spare_parts"."spare_part_id"
+
+Ref: "cars"."id" < "common_orders"."car_id"
+
+Ref: "users"."id" < "common_orders"."client_id"
+
+Ref: "users"."id" < "common_orders"."manager_id"
+
+Ref: "cars"."id" < "custom_orders"."car_id"
+
+Ref: "users"."id" < "custom_orders"."client_id"
+
+Ref: "users"."id" < "custom_orders"."manager_id"
+
+Ref: "custom_orders"."id" < "custom_order_parts"."order_id"
+
+Ref: "spare_parts"."id" < "custom_order_parts"."spare_part_id"
+
+Ref: "cars"."id" < "test_drives"."car_id"
+
+Ref: "users"."id" < "test_drives"."client_id"
+
+Ref: "cars"."id" < "cars_allowed_spare_parts"."car_id"
+
+Ref: "spare_parts"."id" < "cars_allowed_spare_parts"."spare_part_id"

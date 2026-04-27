@@ -1,0 +1,11 @@
+FROM liquibase/liquibase:4.31.1
+
+USER root
+
+# Устанавливаем wget и скачиваем драйвер
+RUN apt-get update && \
+    apt-get install -y wget && \
+    wget -O /liquibase/lib/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.5.jar && \
+    apt-get remove -y wget && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*

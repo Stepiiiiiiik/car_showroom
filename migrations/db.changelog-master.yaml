@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - include:
+      file: sql/V001__users_roles_schema.sql
+      relativeToChangelogFile: true
+  - include:
+      file: sql/V002__cars_spare_parts_schema.sql
+      relativeToChangelogFile: true
+  - include:
+      file: sql/V003__common_orders_schema.sql
+      relativeToChangelogFile: true
+  - include:
+      file: sql/V004__custom_orders_schema.sql
+      relativeToChangelogFile: true
+  - include:
+      file: sql/V005__test_drives_schema.sql
+      relativeToChangelogFile: true
+  - include:
+      file: sql/V006__seed_data.sql
+      relativeToChangelogFile: true
+  - include:
+      file: sql/V007__security.sql
+      relativeToChangelogFile: true
