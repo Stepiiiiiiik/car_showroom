@@ -146,18 +146,6 @@ docker compose up --build
 - `app` (Spring Boot API)
 - `keycloak` (с импортом realm)
 
-### 4. Проверить доступность
-
-- API: `http://localhost:8080`
-- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
-- Keycloak: `http://localhost:8081`
-- PostgreSQL: `localhost:5432`
-
-Keycloak admin credentials (для локальной разработки):
-
-- username: `admin`
-- password: `admin`
-
 ### 5. Остановка
 
 ```bash
