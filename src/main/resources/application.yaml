@@ -17,7 +17,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:${KEYCLOAK_PORT:8081}/realms/cars
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8081/realms/cars}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://keycloak:8080/realms/cars/protocol/openid-connect/certs}
 
 keycloak:
   auth-server-url: http://keycloak:8080

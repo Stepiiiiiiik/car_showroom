@@ -55,6 +55,8 @@ services:
       DB_NAME: ${POSTGRES_DB}
       DB_USERNAME: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ISSUER_URI: http://localhost:8081/realms/cars
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/cars/protocol/openid-connect/certs
     depends_on:
       liquibase:
         condition: service_completed_successfully
